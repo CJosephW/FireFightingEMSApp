@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Container, Header, Content, Picker, Form} from 'native-base';
 import {Dropdown} from 'react-native-material-dropdown';
 import {View, Text, StyleSheet} from 'react-native';
-import { thisTypeAnnotation } from '@babel/types';
+import { thisTypeAnnotation, thisExpression } from '@babel/types';
 
 
 export default class StudentPicker extends Component{
@@ -12,10 +12,9 @@ export default class StudentPicker extends Component{
       this.state = {
         students : [],
 
-
       }
     }
-
+    
     componentDidMount(){
       fetch('http://10.0.2.2:3000/v1/students.json', {
         method: 'GET',
@@ -34,8 +33,6 @@ export default class StudentPicker extends Component{
             value: student
           });
         }
-        
-              
 
         let PMStudents = [];
         for (student of studentJSON.PMStudents) {
@@ -44,9 +41,10 @@ export default class StudentPicker extends Component{
           });
         }
         
-  
+        let CurrentClass = ''; 
         this.setState({AMStudents, PMStudents});
         this.setState({isLoading : false})
+        this.setState({CurrentClass})
         
       })
       .catch((error) => {
@@ -55,16 +53,38 @@ export default class StudentPicker extends Component{
       });
     }
     render(){
+      let shift_dropdown = [{
+        value: 'AM',
+      },
+        {
+          value: 'PM',
+      }];
+     
 
       return(
-
-        <Dropdown
-          baseColor = 'black'
-          itemColor = 'blue'
-          label = 'Select Student'
-          data = { this.state.users[0] == "AM" ? this.state.AMStudents : this.state.PMStudents}
-        />
-      )
+        <View>
+          <View>
+            <Dropdown
+            baseColor = 'black'
+            textColor = 'blue'
+            label = 'Shift'
+            data = {shift_dropdown}
+            onChangeText={(value)=> {this.setState({
+              CurrentClass:value
+            });}}
+            //OnChangeText
+            ></Dropdown>
+          </View>
+          <View>
+            <Dropdown
+              baseColor = 'black'
+              itemColor = 'blue'
+              label = 'Select Student'
+              data = { this.state.CurrentClass == "AM" ? this.state.AMStudents : this.state.PMStudents}
+            ></Dropdown>
+          </View>
+        </View>
+      );
     }
     
     }
