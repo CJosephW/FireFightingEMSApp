@@ -15,12 +15,7 @@ export default class StudentClassPicker extends Component{
     }
   
     render(){
-      let shift_dropdown = [{
-        value: 'AM',
-      },
-        {
-          value: 'PM',
-      }];
+
     
   
       return(
