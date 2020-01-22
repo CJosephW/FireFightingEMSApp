@@ -28,7 +28,7 @@ export default class StudentPicker extends Component{
         console.log(responseJson);
         let studentJSON = responseJson.sudents[0];
         let AMStudents = [];
-        for (student of studentJSON.AMStudents) {
+        for (student of studentJSON.AMStudents) { 
           AMStudents.push({
             value: student
           });

@@ -4,6 +4,7 @@ import {Dropdown} from 'react-native-material-dropdown';
 import {View, Text, StyleSheet} from 'react-native';
 import { thisTypeAnnotation } from '@babel/types';
 import StudentPicker from './StudentPicker';
+import SkillPicker from './skillPicker';
 
 
 export default class StudentAndClassPicker extends Component {
@@ -12,7 +13,10 @@ export default class StudentAndClassPicker extends Component {
     }
     render() {
         return(
-            <StudentPicker ></StudentPicker>
+            <View>
+                <StudentPicker ></StudentPicker>
+                <SkillPicker></SkillPicker>
+            </View>
         );
     }
 }
