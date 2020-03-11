@@ -15,44 +15,9 @@ export default class StudentPicker extends Component{
     }
     
     componentDidMount(){
-      //GET students from database
-      fetch('http://10.0.2.2:3000/v1/students.json', {
-        method: 'GET',
-        headers:{
-          'Accept': 'application/json',
-          'Accept-Encoding' : "gzip, deflate",
-          'Content-Type': 'application/json',
-        }
-      }).then(response => response.json())
-      .then(responseJson => {
-        console.log(responseJson);
-        let studentJSON = responseJson.sudents[0];
-        let AMStudents = [];
-        for (student of studentJSON.AMStudents) { 
-          AMStudents.push({
-            value: student
-          });
-        }
-
-        let PMStudents = [];
-        for (student of studentJSON.PMStudents) {
-          PMStudents.push({
-            value: student
-          });
-        }
-        let CurrentClass = ''; 
-        this.setState({AMStudents, PMStudents});
-        this.setState({isLoading : false})
-        this.setState({CurrentClass})
-        
-      })
-      .catch((error) => {
-        console.error(error);
-  
-      });
+      
     }
     returnStudent(){
-      
       this.props.getStudentName(this.state.CurrentStudent)
     }
     render(){

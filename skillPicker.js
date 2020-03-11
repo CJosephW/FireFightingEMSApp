@@ -3,6 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import { thisTypeAnnotation, emptyStatement } from '@babel/types';
 import  SearchableDropdown from 'react-native-searchable-dropdown';
 import CustomCheckbox from "./CustomCheckboxComponent";
+import {Dropdown} from 'react-native-material-dropdown';
 
 export default class SkillPicker extends Component {
     constructor(props){
@@ -10,7 +11,12 @@ export default class SkillPicker extends Component {
         this.state = {
             selectedItem: "",
             current_tasks : [],
+            CurrentStudent: '',
+            students: [],
         }
+    }
+    returnStudent = () =>{
+        this.props.getStudentName(this.state.CurrentStudent)
     }
     _getTasks = (item)=>{
         //When Skill is selected this function iterates through and gets the tasks by finding a matching title
@@ -66,7 +72,6 @@ export default class SkillPicker extends Component {
             }
         }
     }
-      
     componentDidMount(){
         fetch('http://10.0.2.2:3000/v1/skills', {
             method: 'GET',//getting skill information from RESTful API
@@ -91,46 +96,111 @@ export default class SkillPicker extends Component {
         .catch((error) => {
             console.error(error);
         });
-    }
+        //GET students from database
+        fetch('http://10.0.2.2:3000/v1/students.json', {
+            method: 'GET',
+            headers:{
+            'Accept': 'application/json',
+            'Accept-Encoding' : "gzip, deflate",
+            'Content-Type': 'application/json',
+            }
+        }).then(response => response.json())
+        .then(responseJson => {
+            console.log(responseJson);
+            let studentJSON = responseJson.sudents[0];
+            let AMStudents = [];
+            for (student of studentJSON.AMStudents) { 
+            AMStudents.push({
+                value: student
+            });
+            }
+
+            let PMStudents = [];
+            for (student of studentJSON.PMStudents) {
+            PMStudents.push({
+                value: student
+            });
+            }
+            let CurrentClass = ''; 
+            this.setState({AMStudents, PMStudents});
+            this.setState({isLoading : false})
+            this.setState({CurrentClass})
+            
+        })
+        .catch((error) => {
+            console.error(error);
+    
+        });
+        }
 
     render() {
         let Arr = this.state.current_tasks.map(task => {
                 return <View><CustomCheckbox name = {task.value} pass = {task.pass} fail = {task.fail} toggleChangeFail = {() => this.toggleChangeFail(task.value)} toggleChangePass = {() =>this.toggleChangePass(task.value)}></CustomCheckbox></View>
             })//pragmatically renders tasks into checkboxes with pass and fail boolean values
-               
+        let shift_dropdown = [{
+            value: 'AM',
+            },
+            {
+                value: 'PM',
+            }];
+             
         return(
                 <View>
-                    <SearchableDropdown
-                        maxSize = {100}
-                        onItemSelect={this._getTasks}
-                        containerStyle={{
-                            padding: 5
-                        }}
-                        textInputStyle={{
-                            padding: 12,
-                            borderWidth: 1,
-                            borderColor: '#ccc',
-                            borderRadius: 5
-                        }}
-                        itemStyle={{
-                            padding: 10,
-                            marginTop: 2,
-                            backgroundColor: '#ddd',
-                            borderColor: '#bbb',
-                            borderWidth: 1,
-                            borderRadius:5
-                        }}
-                        itemTextStyle={{
-                        color: '#222'
-                        }}
-                        itemsContainerStyle={{
-                            maxHeight: 140
-                        }}
-                        items={this.state.titles}
-                        placeholder="Please Select Skill: "
-                        resetValue={false}
-                        underlineColorAndroid='transparent' />
+                    <View>
+                        <Dropdown
+                        baseColor = 'black'
+                        textColor = 'blue'
+                        label = 'Shift'
+                        data = {shift_dropdown}
+                        onChangeText={(value)=> {this.setState({
+                        CurrentClass:value
+                        });}}
+                        //OnChangeText
+                        ></Dropdown>
+                    </View>
+                <View>
+                        <Dropdown
+                        baseColor = 'black'
+                        itemColor = 'blue'
+                        label = 'Select Student'
+                        data = { this.state.CurrentClass == "AM" ? this.state.AMStudents : this.state.PMStudents}
+                        onChangeText = {(value)=>{this.setState({CurrentStudent:value}); this.returnStudent;}}
+                        ></Dropdown>
+                </View>
+                    <View>
+                        <SearchableDropdown
+                            maxSize = {100}
+                            onItemSelect={this._getTasks}
+                            containerStyle={{
+                                padding: 5
+                            }}
+                            textInputStyle={{
+                                padding: 12,
+                                borderWidth: 1,
+                                borderColor: '#ccc',
+                                borderRadius: 5
+                            }}
+                            itemStyle={{
+                                padding: 10,
+                                marginTop: 2,
+                                backgroundColor: '#ddd',
+                                borderColor: '#bbb',
+                                borderWidth: 1,
+                                borderRadius:5
+                            }}
+                            itemTextStyle={{
+                            color: '#222'
+                            }}
+                            itemsContainerStyle={{
+                                maxHeight: 140
+                            }}
+                            items={this.state.titles}
+                            placeholder="Please Select Skill: "
+                            resetValue={false}
+                            underlineColorAndroid='transparent' />
+                        </View>
                        {Arr}
+                       
                 </View>
         );
     }

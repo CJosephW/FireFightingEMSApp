@@ -21,11 +21,11 @@ export default class StudentAndClassPicker extends Component {
             skillTitle: '',  
         }
     }
-
     _onProctorSaveEvent = (result)  =>{
         //result.encoded - for the base64 encoded png
         //result.pathName - for the file path name
         this.setState({proctorSig64: result.encoded})
+        console.log(this.state.proctorSig64);
     }
     _onStudentSaveEvent = (result)  =>{
         //result.encoded - for the base64 encoded png
@@ -41,7 +41,6 @@ export default class StudentAndClassPicker extends Component {
     getStudentName  = (name) =>{
         this.setState({studentName : name});
     }
-       
     postSkill = () =>{
         tasks = this.state.tasks;
         let studentTaskMap = new Map();
@@ -52,7 +51,6 @@ export default class StudentAndClassPicker extends Component {
             studentSig : this.state.studentSig64,
             proctorSig : this.state.proctorSig64,
             tasks : this.state.tasks
-        
         }
         async function PostSkill(){
             try{
@@ -78,12 +76,8 @@ export default class StudentAndClassPicker extends Component {
     }
     render() {
         let {proctorName} = this.state;
-
         return(
            <View>
-                <StudentPicker
-                getStudentName = {this.getStudentName}//props function getting data from child
-                ></StudentPicker>
                 <TextField
                     label = "Proctor Name"
                     value = {proctorName}
@@ -92,6 +86,7 @@ export default class StudentAndClassPicker extends Component {
                 <SkillPicker 
                 getTasks = {this.getTasks}//props function to get data from child
                 getSkillTitle = {this.getSkillTitle}//props function to get data from child
+                getStudentName = {this.getStudentName}
                 ></SkillPicker>
                 <View style = {styles.signatureRow}>
                     <ProctorSignatureCaptureField 
