@@ -6,12 +6,13 @@ import { thisTypeAnnotation } from '@babel/types';
 import SignatureCapture from "react-native-signature-capture";
 
 
-export default class SignatureCaptureField extends Component{
+export default class StudentSignatureCaptureField extends Component{
     constructor(props){
+      
+  
       super(props);
       this.state = {
         signature : null,
-        signatureBase64: ''
       };
     }
     
@@ -25,22 +26,19 @@ export default class SignatureCaptureField extends Component{
     render() {
       return (
           <View style={{ flex: 1, flexDirection: "column", marginVertical: 20}}>
-              <Text style = {{justifyContent:'center', alignItems:'center'}}>Proctor Signature</Text>
+              <Text style = {{justifyContent:'center', alignItems:'center'}}>Student Signature</Text>
               <SignatureCapture
-                  type = 'proctorSignature'
-                  
+                  type = 'studentSignature'
                   style={[{flex:1},styles.signature]}
                   ref="sign"
-                  onSaveEvent={this.props._onSaveEvent}
+                  onSaveEvent={this.props._onStudentSaveEvent}
                   onDragEvent={this._onDragEvent}
                   saveImageFileInExtStorage={false}
                   showNativeButtons={false}
                   showTitleLabel={true}
                   showBorder={true}
                   maxSize = {200}
-                  viewMode={"portrait"}
-                 
-                  />
+                  viewMode={"portrait"}/>
                   
                   
 
@@ -69,8 +67,11 @@ export default class SignatureCaptureField extends Component{
       this.refs["sign"].resetImage();
   }
 
- 
-  
+  _onStuedentSaveEvent(result) {
+      //result.encoded - for the base64 encoded png
+      //result.pathName - for the file path name
+      console.log(result.encoded + 'result');
+  }
   _onDragEvent() {
        // called when signature is being made
       console.log("signing detected");

@@ -8,14 +8,14 @@ import { thisTypeAnnotation, thisExpression } from '@babel/types';
 export default class StudentPicker extends Component{
     constructor(props) {
       super (props);
-
       this.state = {
         students : [],
-
+        CurrentStudent: ''
       }
     }
     
     componentDidMount(){
+      //GET students from database
       fetch('http://10.0.2.2:3000/v1/students.json', {
         method: 'GET',
         headers:{
@@ -40,7 +40,6 @@ export default class StudentPicker extends Component{
             value: student
           });
         }
-        
         let CurrentClass = ''; 
         this.setState({AMStudents, PMStudents});
         this.setState({isLoading : false})
@@ -51,6 +50,10 @@ export default class StudentPicker extends Component{
         console.error(error);
   
       });
+    }
+    returnStudent(){
+      
+      this.props.getStudentName(this.state.CurrentStudent)
     }
     render(){
       let shift_dropdown = [{
@@ -81,6 +84,7 @@ export default class StudentPicker extends Component{
               itemColor = 'blue'
               label = 'Select Student'
               data = { this.state.CurrentClass == "AM" ? this.state.AMStudents : this.state.PMStudents}
+              onChangeText = {(value)=>{this.setState({CurrentStudent:value}); this.returnStudent();}}
             ></Dropdown>
           </View>
         </View>
