@@ -15,8 +15,8 @@ export default class SkillPicker extends Component {
             students: [],
         }
     }
-    returnStudent = () =>{
-        this.props.getStudentName(this.state.CurrentStudent)
+    returnStudent(){
+        this.props.getStudentName(this.state.CurrentStudent);
     }
     _getTasks = (item)=>{
         //When Skill is selected this function iterates through and gets the tasks by finding a matching title
@@ -164,7 +164,7 @@ export default class SkillPicker extends Component {
                         itemColor = 'blue'
                         label = 'Select Student'
                         data = { this.state.CurrentClass == "AM" ? this.state.AMStudents : this.state.PMStudents}
-                        onChangeText = {(value)=>{this.setState({CurrentStudent:value}); this.returnStudent;}}
+                        onChangeText = {(value)=>{this.setState({CurrentStudent:value}); this.returnStudent();}}
                         ></Dropdown>
                 </View>
                     <View>

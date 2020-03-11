@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import { Header, Content, Picker, Form} from 'native-base';
 import {View, Text, StyleSheet, Alert, Button} from 'react-native';
 import { thisTypeAnnotation } from '@babel/types';
-import StudentPicker from './StudentPicker';
 import SkillPicker from './skillPicker';
 import ProctorSignatureCaptureField from './SignatureCapture';
 import StudentSignatureCaptureField from './StudentSignatureCapture';
