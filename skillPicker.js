@@ -1,5 +1,5 @@
 import React, {Component, Fragment,} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Button} from 'react-native';
 import { thisTypeAnnotation, emptyStatement } from '@babel/types';
 import  SearchableDropdown from 'react-native-searchable-dropdown';
 import CustomCheckbox from "./CustomCheckboxComponent";
@@ -13,6 +13,7 @@ export default class SkillPicker extends Component {
             current_tasks : [],
             CurrentStudent: '',
             students: [],
+            resumingSkill: false,
         }
     }
     returnStudent(){
@@ -24,18 +25,33 @@ export default class SkillPicker extends Component {
         this.setState({current_tasks : []});//resets tasks when new item is selected
         
         console.log(this.state.selectedItem.name);
-        
-        for ( let i = 0; i < this.state.responseJson.length; i++){
-            if(this.state.responseJson[i].title == this.state.selectedItem.name){
-                for (task of this.state.responseJson[i].tasks){
-                    this.state.current_tasks.push({
-                        value : task,
-                        pass: false,
-                        fail: false,//pass and fail values for checkboxes
-                    });
+        if(this.state.resumingSkill == true){
+            for ( let i = 0; i < this.state.responseJson.length; i++){
+                if(this.state.responseJson[i].title == this.state.selectedItem.name){
+                    for (task of this.state.responseJson[i].tasks){
+                        this.state.current_tasks.push({
+                            value : task.value,
+                            pass: task.pass,
+                            fail: task.fail,//pass and fail values for checkboxes
+                        });
+                    }
                 }
             }
         }
+        else{
+            for ( let i = 0; i < this.state.responseJson.length; i++){
+                if(this.state.responseJson[i].title == this.state.selectedItem.name){
+                    for (task of this.state.responseJson[i].tasks){
+                        this.state.current_tasks.push({
+                            value : task,
+                            pass: false,
+                            fail: false,//pass and fail values for checkboxes
+                        });
+                    }
+                }
+            }
+        }
+        
         this.setState(this.current_tasks);//updates app to render new tasks
         this.props.getTasks(this.state.current_tasks);//giving data to parent component for POST
         this.props.getSkillTitle(this.state.selectedItem.name);//giving data to parent component for POST
@@ -72,9 +88,49 @@ export default class SkillPicker extends Component {
             }
         }
     }
+    resumeSkill = () =>{
+        this.setState({resumingSkill:true});
+        let CurrentStudent = this.state.CurrentStudent;
+        async function GetPreviousSkills(){
+            fetch('http://10.0.2.2:3000/v1/studentSkills', {
+            method: 'GET',//getting skill fields from RESTful API
+            headers:{
+                'Accept': 'application/json',
+                "Accept-Encoding" : 'gzip, deflate',
+                'Content-Type' : 'application/json',
+
+            }
+            }).then(response => response.json())
+            .then(responseJson => {
+                console.log(responseJson[8].title);
+                let titles = [];            
+                for (let i = 0; i < responseJson.length; i++){ 
+                    console.log(responseJson[i].studentName);
+                    console.log(responseJson[i].title);
+                    if(responseJson[i].studentName == CurrentStudent){
+                        titles.push({
+                            name : responseJson[i].title,//push titles into array
+                        });
+                    }
+                    else{
+                        console.log('no match');
+                    }
+                    
+                }
+                this.setState({responseJson});
+                this.setState({titles});
+                this.setState({isLoading: false});
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+            }
+        GetPreviousSkills();
+
+    }
     componentDidMount(){
         fetch('http://10.0.2.2:3000/v1/skills', {
-            method: 'GET',//getting skill information from RESTful API
+            method: 'GET',//getting skill fields from RESTful API
             headers:{
                 'Accept': 'application/json',
                 "Accept-Encoding" : 'gzip, deflate',
@@ -167,6 +223,13 @@ export default class SkillPicker extends Component {
                         onChangeText = {(value)=>{this.setState({CurrentStudent:value}); this.returnStudent();}}
                         ></Dropdown>
                 </View>
+                    <View>
+                        <Button
+                            title = 'Resume/Reattempt Skill'
+                            onPress = {this.resumeSkill}
+                            >
+                        </Button>
+                    </View>
                     <View>
                         <SearchableDropdown
                             maxSize = {100}
