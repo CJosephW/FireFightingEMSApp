@@ -14,6 +14,8 @@ export default class SkillPicker extends Component {
             CurrentStudent: '',
             students: [],
             resumingSkill: false,
+            previousSkillsJson: [],
+            previousSkillTitles: []
         }
     }
     returnStudent(){
@@ -26,9 +28,9 @@ export default class SkillPicker extends Component {
         
         console.log(this.state.selectedItem.name);
         if(this.state.resumingSkill == true){
-            for ( let i = 0; i < this.state.responseJson.length; i++){
-                if(this.state.responseJson[i].title == this.state.selectedItem.name){
-                    for (task of this.state.responseJson[i].tasks){
+            for ( let i = 0; i < this.state.previousSkillsJson.length; i++){
+                if(this.state.previousSkillsJson[i].title == this.state.selectedItem.name){
+                    for (task of this.state.previousSkillsJson[i].tasks){
                         this.state.current_tasks.push({
                             value : task.value,
                             pass: task.pass,
@@ -92,42 +94,45 @@ export default class SkillPicker extends Component {
         this.setState({resumingSkill:true});
         let CurrentStudent = this.state.CurrentStudent;
         async function GetPreviousSkills(){
-            fetch('http://10.0.2.2:3000/v1/studentSkills', {
-            method: 'GET',//getting skill fields from RESTful API
-            headers:{
-                'Accept': 'application/json',
-                "Accept-Encoding" : 'gzip, deflate',
-                'Content-Type' : 'application/json',
+            try{
+                let skillJson =  await fetch('http://10.0.2.2:3000/v1/studentSkills', {
+                method: 'GET',//getting skill fields from RESTful API
+                headers:{
+                    'Accept': 'application/json',
+                    "Accept-Encoding" : 'gzip, deflate',
+                    'Content-Type' : 'application/json',
 
+                        }
+                });
+                let data = await skillJson.json();
+                return data;
+            }   
+            catch(err){ 
+                console.log(err);
             }
-            }).then(response => response.json())
-            .then(responseJson => {
-                console.log(responseJson[8].title);
-                let titles = [];            
-                for (let i = 0; i < responseJson.length; i++){ 
-                    console.log(responseJson[i].studentName);
-                    console.log(responseJson[i].title);
-                    if(responseJson[i].studentName == CurrentStudent){
+           
+        }
+        GetPreviousSkills().then((data) => {
+            this.setState({previousSkillsJson:data});
+            console.log(this.state.previousSkillsJson);
+
+            let titles = [];            
+            for (let i = 0; i < this.state.previousSkillsJson.length; i++){
+                if(this.state.previousSkillsJson[i].studentName != undefined){
+                    if(this.state.previousSkillsJson[i].studentName == CurrentStudent){
+                        console.log(this.state.previousSkillsJson[i].title);
                         titles.push({
-                            name : responseJson[i].title,//push titles into array
+                            name : this.state.previousSkillsJson[i].title,//push titles into array
                         });
                     }
-                    else{
-                        console.log('no match');
-                    }
-                    
                 }
-                this.setState({responseJson});
-                this.setState({titles});
-                this.setState({isLoading: false});
-            })
-            .catch((error) => {
-                console.error(error);
+            }2
+            this.setState({previousSkillTitles : titles});
+            this.setState({isLoading: false});
             });
-            }
-        GetPreviousSkills();
-
-    }
+        /*console.log(this.state.previousSkillsJson);
+        */
+}
     componentDidMount(){
         fetch('http://10.0.2.2:3000/v1/skills', {
             method: 'GET',//getting skill fields from RESTful API
@@ -141,8 +146,8 @@ export default class SkillPicker extends Component {
         .then(responseJson => {
             let titles = [];            
             for (let i = 0; i < responseJson.length; i++){ 
-                    titles.push({
-                        name : responseJson[i].title,//push titles into array
+                titles.push({
+                    name : responseJson[i].title,//push titles into array
                 });
             }
             this.setState({responseJson});
@@ -257,7 +262,7 @@ export default class SkillPicker extends Component {
                             itemsContainerStyle={{
                                 maxHeight: 140
                             }}
-                            items={this.state.titles}
+                            items={this.state.resumingSkill == true ? this.state.previousSkillTitles : this.state.titles }
                             placeholder="Please Select Skill: "
                             resetValue={false}
                             underlineColorAndroid='transparent' />
